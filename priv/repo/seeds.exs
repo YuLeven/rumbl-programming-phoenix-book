@@ -7,5 +7,7 @@ alias Rumbl.Repo
 alias Rumbl.Category
 
 for category <- ~w(Action Drama Romance Comedy Sci-fi) do
-    Repo.insert!(%Category{name: category})
+    # Creates a new category if it doesn't currently exists on the DB
+    Repo.get_by(Category, name: category) ||
+        Repo.insert!(%Category{name: category})
 end
