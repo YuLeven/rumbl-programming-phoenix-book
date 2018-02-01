@@ -1,6 +1,8 @@
 defmodule Rumbl.VideoController do
   use Rumbl.Web, :controller
   alias Rumbl.Video
+  alias Rumbl.Category
+  
   plug :load_categories when action in [:new, :create, :edit, :update]
 
   def action(conn, _) do
@@ -74,16 +76,12 @@ defmodule Rumbl.VideoController do
     |> redirect(to: video_path(conn, :index))
   end
   
-  @doc """
-  Returns the passed user's videos
-  """
+  #Returns the passed user's videos
   defp user_videos(user) do
     assoc(user, :videos)
   end
 
-  @doc """
-  Plug to load all categories, assigning them to the connection
-  """
+  #Plug to load all categories, assigning them to the connection
   defp load_categories(conn, _) do
     query =
       Category
