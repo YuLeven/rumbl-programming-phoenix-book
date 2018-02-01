@@ -20,7 +20,7 @@ defmodule Rumbl.Category do
   Appends criteria to order the categories alphabetically to a query
   """
   def alphabetical(query) do
-    fro c in query, order_by: c.name
+    from c in query, order_by: c.name
   end
 
   @doc """
