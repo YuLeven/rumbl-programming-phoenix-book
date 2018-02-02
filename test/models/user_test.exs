@@ -5,7 +5,7 @@ defmodule Rumbl.UserTest do
     @valid_attrs %{name: "Cookiemonster", username: "morecookies", password: "doughandchocolate"}
     @invalid_attrs %{}
 
-    test "cahngeset with valid attributes" do
+    test "changeset with valid attributes" do
         changeset = User.changeset(%User{}, @valid_attrs)
         assert changeset.valid?
     end
