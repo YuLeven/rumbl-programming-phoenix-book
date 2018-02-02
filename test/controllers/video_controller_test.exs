@@ -2,8 +2,8 @@ defmodule Rumbl.VideoControllerTest do
   use Rumbl.ConnCase
 
   alias Rumbl.Video
-  @valid_attrs %{description: "some content", title: "some content", url: "some content"}
-  @invalid_attrs %{}
+  @valid_attrs %{description: "陰と光", title: "Bad Apple", url: "https://www.youtube.com/watch?v=FtutLA63Cp8"}
+  @invalid_attrs %{title: "invalid"}
   
   setup  %{conn: conn} = config do
     if username = config[:login_as] do
@@ -42,6 +42,21 @@ defmodule Rumbl.VideoControllerTest do
     assert html_response(conn, 200) =~ "Listing videos"
     assert String.contains?(conn.resp_body, user_video.title)
     refute String.contains?(conn.resp_body, other_user_video.title)
+  end
+
+  @tag login_as: "Cookiemonster"
+  test "creates user video and redirects", %{conn: conn, user: user} do
+    conn = post conn, video_path(conn, :create), video: @valid_attrs
+    assert redirected_to(conn) == video_path(conn, :index)
+    assert Repo.get_by!(Video, @valid_attrs).user_id == user.id
+  end
+
+  @tag login_as: "Cookiemonster"
+  test "fails to create a new video and render errors when invalid", %{conn: conn} do
+    count_before = video_count(Video)
+    conn = post conn, video_path(conn, :create), video: @invalid_attrs
+    assert html_response(conn, 200) =~ "check the errors"
+    assert video_count(Video) == count_before
   end
 
   test "renders form for new resources", %{conn: conn} do
@@ -97,4 +112,7 @@ defmodule Rumbl.VideoControllerTest do
     assert redirected_to(conn) == video_path(conn, :index)
     refute Repo.get(Video, video.id)
   end
+
+  # Counts the total videos
+  defp video_count(query), do: Repo.one(from v in query, select: count(v.id))
 end
