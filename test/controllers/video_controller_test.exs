@@ -13,13 +13,13 @@ defmodule Rumbl.VideoControllerTest do
 
   test "lists all entries on index", %{conn: conn, user: user} do
     user_video = insert_video(user, title: "Chunky Bacon")
-    other_video = insert_video(user, title: "Smoky Bacon")
+    other_user_video = insert_video(insert_user(username: "Charles"), title: "Smoky Bacon")
 
     conn = get conn, video_path(conn, :index)
 
     assert html_response(conn, 200) =~ "Listing videos"
     assert String.contains?(conn.resp_body, user_video.title)
-    assert String.contains?(conn.resp_body, other_video.title)
+    refute String.contains?(conn.resp_body, other_user_video.title)
   end
 
   test "renders form for new resources", %{conn: conn} do
