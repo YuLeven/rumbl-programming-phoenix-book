@@ -66,4 +66,11 @@ defmodule Rumbl.AuthTest do
         assert {:error, :not_found, _conn} =
             Auth.login_by_username_and_pass(conn, "me", "foobarfoo", repo: Repo)
     end
+
+    test "login with password mismatch", %{conn: conn} do
+        _ = insert_user(username: "Cookiemonster", password: "iwontrememberthislater")
+
+        assert {:error, :unauthorized, _conn} =
+            Auth.login_by_username_and_pass(conn, "Cookiemonster", "eeeh,isaidso", repo: Repo)
+    end
 end
