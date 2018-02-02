@@ -42,7 +42,7 @@ defmodule Rumbl.Auth do
                 {:error, :unauthorized, conn}
             true ->
                 dummy_checkpw()
-                {:error, :now_found, conn}
+                {:error, :not_found, conn}
         end
     end
 
