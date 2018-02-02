@@ -45,4 +45,14 @@ defmodule Rumbl.AuthTest do
         next_conn = get(logout_conn, "/")
         refute get_session(next_conn, :user_id)
     end
+
+    test "call palces user from session into assigns", %{conn: conn} do
+        user = insert_user()
+        conn = 
+            conn
+            |> put_session(:user_id, user.id)
+            |> Auth.call(Repo)
+
+        assert conn.assigns.current_user.id == user.id
+    end
 end
