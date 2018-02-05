@@ -42,8 +42,22 @@ class Video {
      */
     joinVideoChannel() {
         this.vidChannel.join()
-            .receive('ok', ({annotations}) => this.scheduleMessages(annotations))
+            .receive('ok', this.onJoinChannel.bind(this))
             .receive('error', reason => console.log('join failed', reason));
+    }
+
+    /**
+     * Callback called once we establish a connection with the server
+     * @param {Array} annotations - An array of annotations (from the server)
+     */
+    onJoinChannel({annotations}) {
+        // Store the last seen ID
+        let ids = annotations.map(ann => ann.id);
+        if (ids.length > 0) {
+            this.vidChannel.params.last_seen_id = Math.max(...ids);
+        }
+
+        this.scheduleMessages(annotations);
     }
 
     /**
