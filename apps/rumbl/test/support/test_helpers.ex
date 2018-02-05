@@ -22,7 +22,7 @@ defmodule Rumbl.TestHelpers do
     Inserts a mock video to be used throughout the tests
     """
     def insert_video(user, attrs \\ %{}) do
-        user
+    user
         |> Ecto.build_assoc(:videos, attrs)
         |> Repo.insert!()
     end
