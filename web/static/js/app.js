@@ -12,7 +12,8 @@
 // If you no longer want to use a dependency, remember
 // to also remove its path from "config.paths.watched".
 import "phoenix_html"
-import Player from './player'
+import socket from './socket'
+import Video from './video'
 // Import local files
 //
 // Local files can be imported directly using relative
@@ -20,13 +21,6 @@ import Player from './player'
 
 // import socket from "./socket"
 
-(function() {
-    let video = document.getElementById('video');
-
-    if (video != null) {
-        new Player(video.id, video.getAttribute('data-player-id'), () => {
-            console.log('player ready!');
-        })
-    }
-
-}).call(this);
+// Instantiates the video channel and present the video to the user
+// through the Player class
+new Video(socket, document.getElementById('video'));
