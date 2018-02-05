@@ -28,3 +28,4 @@ erl_crash.dump
 erl_crash.dump
 *.ez
 *.beam
+config/dev.secret.exs
