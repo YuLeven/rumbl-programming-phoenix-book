@@ -1,4 +1,30 @@
 defmodule InfoSysTest do
   use ExUnit.Case
-  doctest InfoSys
+  alias InfoSys.Result
+
+  @moduledoc """
+  This is a stub backend to handle our tests dependents on externall calls
+  """
+  defmodule TestBackend do
+    def start_link(query, ref, owner, limit) do
+      Task.start_link(__MODULE__, :fetch, [query, ref, owner, limit])
+    end
+
+    def fetch("result", ref, owner, _limit) do
+      send(owner, {:results, ref, [%Result{backend: "test", text: "result"}]})
+    end
+
+    def fetch("none", ref, owner, _limit) do
+      send(owner, {:results, ref, []})
+    end
+  end
+
+  test "compute/2 with backed results" do
+    assert [%Result{backend: "test", text: "result"}] =
+      InfoSys.compute("result", backends: [TestBackend])
+  end
+
+  test "compute/2 with no backend results" do
+    assert [] = InfoSys.compute("none", backends: [TestBackend])
+  end
 end
