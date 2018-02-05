@@ -31,7 +31,7 @@ class Video {
 
     joinVideoChannel() {
         this.vidChannel.join()
-            .receive('ok', ({annotations}) => annotations.forEach(ann => this.onNewAnnotationReceived(ann)))
+            .receive('ok', ({annotations}) => this.scheduleMessages(annotations))
             .receive('error', reason => console.log('join failed', reason));
     }
 
@@ -52,16 +52,51 @@ class Video {
         return div.innerHTML;
     }
 
-    onNewAnnotationReceived({user, body, at}) {
+    onNewAnnotationReceived(annotation) {
+        this.renderAnnotation(annotation);
+    }
+
+    scheduleMessages(annotations) {
+        setTimeout(() => {
+            let cTime = this.player.getCurrentTime();
+            let remainingAnnotations = this.renderAtTime(annotations, cTime);
+            this.scheduleMessages(remainingAnnotations);
+        }, 1000);
+    }
+
+    renderAtTime(annotations, seconds) {
+        return annotations.filter(ann => {
+            // Renders the annotation and remove it from the annotations array
+            if (ann.at <= seconds) {
+                this.renderAnnotation(ann);
+                return false;
+            }
+
+            return true;
+        });
+    }
+
+    renderAnnotation({user, body, at}) {
         let template = document.createElement('div');
         template.innerHTML = `
             <a href="#" data-seek="${this.escape(at)}">
+            [${this.formatTime(at)}]
                 <b>${this.escape(user.username)}</b>: ${this.escape(body)}
             </a>
         `
 
         this.msgContainer.appendChild(template);
         this.msgContainer.scrollTop = this.msgContainer.scrollHeight;
+    }
+
+    formatTime(at) {
+        console.log(at);
+        at = at / 1000;
+        let params = ['en-US', {minimumIntegerDigits: 2, useGrouping:false}];
+        let formatDigit = (digit) => Math.floor(digit).toLocaleString(...params);
+        let minutes = formatDigit(at / 60);
+        let seconds = formatDigit(at % 60);
+        return `${minutes}:${seconds}`;
     }
 }
 
