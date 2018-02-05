@@ -1,7 +1,7 @@
 import Player from './player'
 
 class Video {
-    
+
     constructor(socket, element) {
         this.playerID = element.getAttribute('data-player-id');
         this.videoID = element.getAttribute('data-id');
@@ -24,6 +24,7 @@ class Video {
         this.vidChannel = this.socket.channel(`videos:${this.videoID}`);
 
         this.postButton.addEventListener('click', this.onPostButtonClicked.bind(this));
+        this.msgContainer.addEventListener('click', this.onMsgContainerClicked.bind(this));
         
         this.bindVideoChannelEvents();
         this.joinVideoChannel();
@@ -44,6 +45,19 @@ class Video {
             .receive('ok', ({annotations}) => this.scheduleMessages(annotations))
             .receive('error', reason => console.log('join failed', reason));
     }
+
+    /**
+     * Callback called once a link on the message box was clicked
+     * @param {Event} e - The click event
+     */
+    onMsgContainerClicked(e) {
+        e.preventDefault()
+        let seconds = e.target.getAttribute('data-seek') || e.target.parentNode.getAttribute('data-seek');
+        // Return early if the seconds couldn't be found
+        if (seconds == null) return
+
+        this.player.seekTo(seconds)
+    };
 
     /**
      * Callback called once the 'Post' button is clicked
