@@ -31,7 +31,7 @@ class Video {
 
     joinVideoChannel() {
         this.vidChannel.join()
-            .receive('ok', resp => console.log('joined the video channel', resp))
+            .receive('ok', ({annotations}) => annotations.forEach(ann => this.onNewAnnotationReceived(ann)))
             .receive('error', reason => console.log('join failed', reason));
     }
 
