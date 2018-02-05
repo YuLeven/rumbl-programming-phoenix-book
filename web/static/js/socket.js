@@ -7,7 +7,7 @@ import {Socket} from "phoenix"
 
 let socket = new Socket("/socket", { 
   params: { 
-    token: window.userToken 
+    token: window.localStorage.getItem('userToken')
   },
   logger: (kind, msg, data) => console.log(`${kind}: ${msg}`, data)
 });
