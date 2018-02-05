@@ -1,6 +1,7 @@
 import Player from './player'
 
 class Video {
+    
     constructor(socket, element) {
         this.playerID = element.getAttribute('data-player-id');
         this.videoID = element.getAttribute('data-id');
@@ -13,6 +14,9 @@ class Video {
         this.vidChannel = null;
     }
 
+    /**
+     * Callback called once the player is ready (for reference, see YouTube's iFrame API)
+     */
     onReady() {
         this.msgContainer = document.getElementById('msg-container');
         this.msgInput = document.getElementById('msg-input');
@@ -25,16 +29,26 @@ class Video {
         this.joinVideoChannel();
     }
 
+    /**
+     * Binds a number of socket events to the video channel
+     */
     bindVideoChannelEvents() {
         this.vidChannel.on('new_annotation', this.onNewAnnotationReceived.bind(this));
     }
 
+    /**
+     * Joins the video channel, setting success and error callbacks
+     */
     joinVideoChannel() {
         this.vidChannel.join()
             .receive('ok', ({annotations}) => this.scheduleMessages(annotations))
             .receive('error', reason => console.log('join failed', reason));
     }
 
+    /**
+     * Callback called once the 'Post' button is clicked
+     * @param {Event} e - The click event
+     */
     onPostButtonClicked(e) {
         // Pushes a new annotation to the channel
         this.vidChannel.push('new_annotation', {
@@ -46,16 +60,28 @@ class Video {
         this.msgInput.value = '';
     }
 
+    /**
+     * Escapes a string (to prevent XSS attacks)
+     * @param {String} str - The string to be escaped
+     */
     escape(str) {
         let div = document.createElement('div');
         div.appendChild(document.createTextNode(str));
         return div.innerHTML;
     }
 
+    /**
+     * Callback called once an annotation is received from the channel
+     * @param {Object} annotation - The received annotation
+     */
     onNewAnnotationReceived(annotation) {
         this.renderAnnotation(annotation);
     }
 
+    /**
+     * Schedules an array of annotations for rendering
+     * @param {Array} annotations - An array of annotations
+     */
     scheduleMessages(annotations) {
         setTimeout(() => {
             let cTime = this.player.getCurrentTime();
@@ -64,6 +90,12 @@ class Video {
         }, 1000);
     }
 
+    /**
+     * Iterates and filters an annoations array, filtering and rendering those whose
+     * position is lesser or equal compared to the current video position
+     * @param {Array} annotations - An array of annotations
+     * @param {Number} seconds - The current position of the video
+     */
     renderAtTime(annotations, seconds) {
         return annotations.filter(ann => {
             // Renders the annotation and remove it from the annotations array
@@ -76,6 +108,12 @@ class Video {
         });
     }
 
+    /**
+     * Render an annotation to the annotation box
+     * @param {string} user - The user who made the annotation 
+     * @param {string} body - The body of the annotation
+     * @param {number} at - When the annotatio was made
+     */
     renderAnnotation({user, body, at}) {
         let template = document.createElement('div');
         template.innerHTML = `
@@ -89,8 +127,11 @@ class Video {
         this.msgContainer.scrollTop = this.msgContainer.scrollHeight;
     }
 
+    /**
+     * Formats milliseconds to mm:ss
+     * @param {Number} at - The location (in ms)
+     */
     formatTime(at) {
-        console.log(at);
         at = at / 1000;
         let params = ['en-US', {minimumIntegerDigits: 2, useGrouping:false}];
         let formatDigit = (digit) => Math.floor(digit).toLocaleString(...params);
